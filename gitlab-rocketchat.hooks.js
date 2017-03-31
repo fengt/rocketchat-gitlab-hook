@@ -104,8 +104,8 @@ class Script { // eslint-disable-line
 
 		return {
 			content: {
-				username: 'gitlab/' + data.project.name,
-				icon_url: data.project.avatar_url || data.user.avatar_url || '',
+				username: 'gitlab/' + data.repository.name,
+				icon_url: data.repository.avatar_url || data.user.avatar_url || '',
 				text: (data.assignee && data.assignee.name !== data.user.name) ? atName(data.assignee) : '',
 				attachments: [
 					makeAttachment(
@@ -150,8 +150,8 @@ See: ${data.object_attributes.url}`
 		}
 		return {
 			content: {
-				username: 'gitlab/' + data.project.name,
-				icon_url: data.project.avatar_url || user.avatar_url || '',
+				username: 'gitlab/' + data.repository.name,
+				icon_url: data.repository.avatar_url || user.avatar_url || '',
 				text: at.join(' '),
 				attachments: [
 					makeAttachment(user, `${text}\n${comment.note}`)
@@ -190,7 +190,7 @@ See: ${data.object_attributes.url}`
 	}
 
 	pushEvent(data) {
-		const project = data.project;
+		const project = data.repository;
 		const user = {
 			name: data.user_name,
 			avatar_url: data.user_avatar
@@ -202,7 +202,7 @@ See: ${data.object_attributes.url}`
 					username: `gitlab/${project.name}`,
 					icon_url: project.avatar_url || data.user_avatar || '',
 					attachments: [
-						makeAttachment(user, `removed branch ${refParser(data.ref)} from [${project.name}](${project.web_url})`)
+						makeAttachment(user, `removed branch ${refParser(data.ref)} from [${project.name}](${project.homepage})`)
 					]
 				}
 			};
@@ -214,7 +214,7 @@ See: ${data.object_attributes.url}`
 					username: `gitlab/${project.name}`,
 					icon_url: project.avatar_url || data.user_avatar || '',
 					attachments: [
-						makeAttachment(user, `pushed new branch [${refParser(data.ref)}](${project.web_url}/commits/${refParser(data.ref)}) to [${project.name}](${project.web_url}), which is ${data.total_commits_count} commits ahead of master`)
+						makeAttachment(user, `pushed new branch [${refParser(data.ref)}](${project.homepage}/commits/${refParser(data.ref)}) to [${project.name}](${project.homepage}), which is ${data.total_commits_count} commits ahead of master`)
 					]
 				}
 			};
@@ -224,7 +224,7 @@ See: ${data.object_attributes.url}`
 				username: `gitlab/${project.name}`,
 				icon_url: project.avatar_url || data.user_avatar || '',
 				attachments: [
-					makeAttachment(user, `pushed ${data.total_commits_count} commits to branch [${refParser(data.ref)}](${project.web_url}/commits/${refParser(data.ref)}) in [${project.name}](${project.web_url})`),
+					makeAttachment(user, `pushed ${data.total_commits_count} commits to branch [${refParser(data.ref)}](${project.homepage}/commits/${refParser(data.ref)}) in [${project.name}](${project.homepage})`),
 					{
 						text: data.commits.map((commit) => `  - ${new Date(commit.timestamp).toUTCString()} [${commit.id.slice(0, 8)}](${commit.url}) by ${commit.author.name}: ${commit.message.replace(/\s*$/, '')}`).join('\n'),
 						color: NOTIF_COLOR
@@ -242,14 +242,14 @@ See: ${data.object_attributes.url}`
 		};
 		let message;
 		if (data.checkout_sha === null) {
-			message = `deleted tag [${tag}](${data.project.web_url}/tags/)`;
+			message = `deleted tag [${tag}](${data.repository.homepage}/tags/)`;
 		} else {
-			message = `pushed tag [${tag} ${data.checkout_sha.slice(0, 8)}](${data.project.web_url}/tags/${tag})`;
+			message = `pushed tag [${tag} ${data.checkout_sha.slice(0, 8)}](${data.repository.homepage}/tags/${tag})`;
 		}
 		return {
 			content: {
-				username: `gitlab/${data.project.name}`,
-				icon_url: data.project.avatar_url || data.user_avatar || '',
+				username: `gitlab/${data.repository.name}`,
+				icon_url: data.repository.avatar_url || data.user_avatar || '',
 				text: MENTION_ALL_ALLOWED ? '@all' : '',
 				attachments: [
 					makeAttachment(user, message)
